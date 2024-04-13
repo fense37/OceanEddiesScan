@@ -27,15 +27,15 @@ function [ aver ] = calCirAver(field, lat, lon, center, r)
     end
 
     % calculate the average length of each grid for ref
-    dl = dLatLon(lat(1), lon(1), lat(end), lon(end)) / sqrt(length(lat)^2 + length(lon)^2);
+    dl = dLatLon(lat(1), lat(end), lon(1), lon(end)) / sqrt(length(lat)^2 + length(lon)^2);
 
     % find the index of center in lat and lon
     % center point
     centerLat = center(1);
     centerLon = center(2);
     % center index
-    [~, latIndex] = min(lat-centerLat);
-    [~, lonIndex] = min(lon-centerLon);
+    [~, latIndex] = min(abs(lat-centerLat));
+    [~, lonIndex] = min(abs(lon-centerLon));
 
     % if the circle is fully on the field
     if dLatLon(lat(1), lat(latIndex), lon(lonIndex), lon(lonIndex))   < r | ...
@@ -50,7 +50,7 @@ function [ aver ] = calCirAver(field, lat, lon, center, r)
     for i = 1:length(lat)
         for j = 1:length(lon)
             res = dLatLon(lat(i),centerLat,Lon(j),centerLon) - r;
-            if abs(res)^2 < dl^2 / 4
+            if abs(res) < dl / 2
                 fieldValueCir(cn) = field(i, j);
                 cn = cn + 1;
             end
