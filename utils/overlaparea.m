@@ -28,10 +28,10 @@ function [overlat, overlon] = overlaparea(lat1, lon1, lat2, lon2)
         error('Wrong 2nd curve grid!');
     end
 
-    % curve 2 points inside curve 1
-    in21 = inpolygon(lat1, lon1, lat2, lon2);
     % curve 1 points inside curve 2
-    in12 = inpolygon(lat2, lon2, lat1, lon1);
+    in12 = inpolygon(lat1, lon1, lat2, lon2);
+    % curve 2 points inside curve 1
+    in21 = inpolygon(lat2, lon2, lat1, lon1);
 
     % the overlap points
     overlat = cat(1, lat2(in21), lat1(~in12));

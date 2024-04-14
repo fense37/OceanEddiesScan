@@ -20,12 +20,16 @@ function [eddies] = singleSliceScan(ssh, lat, lon)
     % should change within different resolution
     minPixel = 8;
     maxPixel = 1000;
-    
+    minAmp   = 1;    % unit centimeter
+    maxAmp   = 150;  % unit centimeter
 
+    % calculate the average length of each grid for ref
+    dl = dLatLon(lat(1), lat(end), lon(1), lon(end)) / sqrt(length(lat)^2 + length(lon)^2);
     % calculate the coutour
-    s = coutourData(ssh, lat, lon);
+    s = contourData(ssh, lat, lon);
     % search the right coutour
-    parfor i = 1: size(s, 1)
+    eddyNumber = 0;
+    for i = 1: size(s, 2)
         % calculate the area of the coutour
         % the lat and lon of the coutour
         slat = s(i).x;
@@ -33,16 +37,16 @@ function [eddies] = singleSliceScan(ssh, lat, lon)
         % the centroid of the coutour
         centLat = 0;
         centLon = 0;
-        parfor j = 1:length(slat)
+        for j = 1:length(slat)
             % x and y distance from the first point
             sx(j) = sign(slat(j)-slat(1)) * dLatLon(slat(1), slat(j), slon(1), slon(1));
             sy(j) = sign(slon(j)-slon(1)) * dLatLon(slat(1), slat(1), slon(1), slon(j));
             % lat and lon index to find ssh point
-            latIndex(j) = min(abs(lat - slat(j)));
-            lonIndex(j) = min(abs(lon - slon(j)));
+            [~, latIndex] = min(abs(lat - slat(j)));
+            [~, lonIndex] = min(abs(lon - slon(j)));
             % calculate the centroid
-            centLat = centLat + ssh(latIndex(j), lonIndex(j)) * slat(j);
-            centLon = centLon + ssh(latIndex(j), lonIndex(j)) * slon(j);
+            centLat = centLat + ssh(latIndex, lonIndex) * slat(j);
+            centLon = centLon + ssh(latIndex, lonIndex) * slon(j);
         end
         % calculate the centroid
         centLat = centLat / (sum(slat));
@@ -55,24 +59,33 @@ function [eddies] = singleSliceScan(ssh, lat, lon)
         % circle point number
         cn = 1;
         npixel = 0;
-        parfor j = 1:length(lat)
-            parfor k = 1:length(lon)
+        infield = zeros(size(ssh, 1), size(ssh, 2));
+        for j = 1:length(lat)
+            for k = 1:length(lon)
                 % calculate the circle with the radius of sqrt(area/pi)
-                res = dLatLon(lat(j),centLat,Lon(k),centLon) - sr;
+                res = dLatLon(lat(j),centLat,lon(k),centLon) - sr;
                 if abs(res) < dl / 2
                     cirLat(cn) = lat(j);
                     cirLon(cn) = lon(k);
                     cn = cn + 1;
                 end
                 % calculate the pixel number
-                if inpolygon(slat, slon, lat(j), lon(k))
+                if inpolygon(lat(j), lon(k), slat, slon)
                     npixel = npixel + 1;
+                    % calculate the eddy area
+                    inlat(npixel)   = lat(j);
+                    inlon(npixel)   = lon(k);
+                    infield(j, k)   = ssh(j, k);
                 end
             end
         end
+        % if didnt find the circle point
+        if cn == 1
+            continue;
+        end
         % calculate the overlaps
         [overLat, overLon] = overlaparea(slat, slon, cirLat, cirLon);
-        parfor j = 1:length(slat)
+        for j = 1:length(overLat)
             % x and y distance from the first point
             overx(j) = sign(overLat(j)-overLat(1)) * dLatLon(overLat(1), overLat(j), overLon(1), overLon(1));
             overy(j) = sign(overLon(j)-overLon(1)) * dLatLon(overLat(1), overLat(1), overLon(1), overLon(j));
@@ -90,9 +103,35 @@ function [eddies] = singleSliceScan(ssh, lat, lon)
         if npixel > maxPixel || npixel < minPixel
             continue;
         end
-
+        % amplitude search
+        peak = imregionalmax(abs(infield));
+        % if not only one peak
+        if sum(peak(:)) ~= 1
+            continue;
+        end
+        % if the peak is beyond the max and min amplitude
+        amp = infield(peak);
+        if abs(amp) < minAmp || abs(amp) > maxAmp
+            continue;
+        end
+        % calculate the center
+        [mlon, mlat] = meshgrid(lon, lat);
+        sCenter(1) = mlat(peak);
+        sCenter(2) = mlon(peak);
+        % calculate the cyclone 
+        if amp < mean(infield(:))
+            % if the ampltitude is smaller than the surrounding
+            % it's a cyclone
+            cyc = 1;
+        else 
+            % if the ampltitude is bigger than the surrounding
+            cyc = -1;
+        end
+        eddy = Eddy(amp, sCenter, cyc, sr);
+        eddyNumber = eddyNumber + 1;
+        eddies(eddyNumber) = eddy;
     end
-
-    eddies = Eddy(center, cyc, date, ID, r, Seq);
-
+    if eddyNumber == 0
+        eddies = 0;
+    end
 end
