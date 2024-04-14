@@ -22,7 +22,7 @@ function [eddies] = singleSliceScan(ssh, lat, lon)
     maxPixel = 1000;
     minAmp   = 1;    % unit centimeter
     maxAmp   = 150;  % unit centimeter
-    minError = 1e-4; 
+    minError = 10e-4; 
     warning('off', 'all');
 
     % calculate the average length of each grid for ref
@@ -77,9 +77,6 @@ function [eddies] = singleSliceScan(ssh, lat, lon)
         % calculate the overlaps
         [overLat, overLon] = overlaparea(slat, slon, cirLat, cirLon);
         % x and y distance from the first point
-        if isempty(overLat)
-            continue;
-        end
         overx = sign(overLat-overLat(1)) .* dLatLon(overLat(1), overLat, overLon(1), overLon(1));
         overy = sign(overLon-overLon(1)) .* dLatLon(overLat(1), overLat(1), overLon(1), overLon);
         % calculate the overlaps area
@@ -122,17 +119,10 @@ function [eddies] = singleSliceScan(ssh, lat, lon)
             cyc = -1;
         end
         % seak if there is an inside eddy
-        j = 1;
-        while j <= eddyNumber
-            if abs(eddies(j).amp - amp)<minError && ...
-               abs(eddies(j).center(1) - sCenter(1))<minError &&...
-               abs(eddies(j).center(2) - sCenter(2))<minError &&...
-               eddies(j).cyc == cyc &&...
-               eddies(j).r < sr
-                   eddies(j) = [];
-                   eddyNumber = eddyNumber - 1;
+        for j = 1:eddyNumber
+            if abs(eddies(j).amp - amp)<minError && abs(eddies(j).center- sCenter && eddies(j).cyc == cyc && eddies(j).r < sr
+                eddies(j) = [];
             end
-            j = j + 1;
         end   
         eddyNumber = eddyNumber + 1;
         eddies(eddyNumber).amp    = amp;
