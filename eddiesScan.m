@@ -21,21 +21,21 @@ function [ eddies ] = eddiesScan( ssh, lat, lon, date)
     if ~all(size(ssh) == [length(lat) length(lon) length(date)])
         error('Invalid ssh data size');
     end 
-
+    % add path
+    addpath('../utils/')
     % scan ssh to get eddies
-    for i = 1:length(date)
-        fprintf('start to scan eddies %d\n', i);
-        eddiesIDay    = singleSliceScan(ssh(:, :, i), lat, lon);
-        eddiesCenter = cat(1,eddiesCenter, eddiesIDayCenter);
-        eddiesCyc    = cat(1,eddiesCyc,    eddiesIDayCyc);
-        eddiesR      = cat(1,eddiesR,      eddiesIDayR);
-        eddiesU      = cat(1,eddiesU,      eddiesIDayU);
-        eddiesID     = cat(1,eddiesID,     eddiesIDayID);
-        eddiesDate   = cat(1,eddiesDate,   eddiesIDayDate);
-        eddiesSeq    = cat(1,eddiesSeq,    eddiesIDaySeq);
+    % scan the 1st day
+    eddies = singleSliceScan(ssh(:, :, 1), lat, lon);
+    % intial the eddies: add ID, dates, and Seq
+    eddies = initialEddy(eddies, date(1));
+
+    % calculate the next day to update the eddies
+    for i = 2:length(date)
+        fprintf('start to scan eddies %d / %d\n', i, length(date));
+        % calculate the new day eddy to update
+        eddiesUpdate = singleSliceScan(ssh(:, :, i), lat, lon);
+        % update the eddies
+        eddies = eddyTrack(eddies, eddiesUpdate, date(i));
+        fprintf('%d th day eddies updated sucessfully!\n', i);
     end
-
-    % save data 
-    save('eddies.mat','eddies');
-
 end 
