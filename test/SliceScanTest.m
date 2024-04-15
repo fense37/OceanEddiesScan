@@ -14,3 +14,11 @@ disp('Load complete!');
 addpath('../utils/');
 %% run the test function
 s = singleSliceScan(data, lat, lon);
+%% viewing result
+[mlon, mlat] = meshgrid(lon, lat);
+contourf(mlat, mlon, data);shading interp;colorbar;
+hold on;
+for i = 1: 10
+    scatter(s(i).center(1), s(i).center(2), '.');
+    hold on;
+end
