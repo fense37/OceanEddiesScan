@@ -26,6 +26,7 @@ function s = contourData(field, lat, lon)
     % get contour info
     figure('Visible','off')
     c = contour(mlat, mlon, field, level);
+    figure('Visible','on')
     tol = 1e-12;
     % amount of contour
     k = 1; 

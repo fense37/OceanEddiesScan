@@ -140,7 +140,6 @@ function [eddies] = singleSliceScan(ssh, lat, lon)
         eddies(eddyNumber).cyc    = cyc;
         eddies(eddyNumber).r      = sr;
     end
-    delete(p);
     if eddyNumber == 0
         eddies = 0;
     end
