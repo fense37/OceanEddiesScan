@@ -1,0 +1,71 @@
+function [eddies] = eddyTrack(oldEddies, newEddies, date)
+%EDDYTRACK is a function to update the eddies struct based on the S value
+%    ___                  ___________________________
+%    |__           ——    |   Δd  2   Δa  2     ΔA  2 
+%    ___|(k, k+1)  ——   _|  ————  + ————   +  ————
+%                            d0      a0        A0
+% Created by Wang Zhuoyue at 2024/4/15
+%INPUT:
+% oldEddies: eddies struct with amp, center, cyc, r, date, Seq, ID
+% newEddies: eddies struct with amp, center, cyc, r
+% date: date of new eddies
+%OUTPUT:
+% eddies: eddies struct with amp, center, cyc, r, ID, Seq
+
+    % basic paramter
+    % eigenvalue of distance: 25km
+    d0 = 25;
+    % eigenvalue of area: 3600pikm2
+    a0 = 60 ^ 2 * pi;
+    % eigenvalue of amplitude: 2cm
+    A0 = 2;
+    eddies = oldEddies;
+    % Update all eddies in oldEddies
+    updateEddyNumber = 0;
+            s = zeros(length(oldEddies), length(newEddies));
+    for i = 1:length(oldEddies)
+        for j = 1:length(newEddies)
+            % calculate amp diff
+            dA = oldEddies(i).amp - newEddies(j).amp;
+            % calculate area diff
+            da = pi * (oldEddies(i).r ^ 2 - newEddies(j).r ^ 2);
+            % calculate distance diff
+            dd = dLatLon(oldEddies(i).center(1), newEddies(j).center(1), oldEddies(i).center(2), newEddies(j).center(2));
+            % calculate S valye
+            s(i, j) = sqrt((dA/A0)^2+(da/a0)^2+(dd/d0)^2);
+        end
+    end
+    % search the martix, if two old eddies have same smallest S in one new
+    % eddy, the one with a bigger S change another
+    [minS, nextIndex] = min(s, 1);
+    for i = 1:length(oldEddies)
+        [minS, nextIndex] = min(s(i,:));
+        [minJS, JIndex] = min(s(:, nextIndex));
+        if minJS < minS && min(s(JIndex,:)) == minJS
+            updateEddies()
+    end
+            [minS, nextIndex] = min(s);
+        if minS > 10
+            continue;
+        end
+        updateEddyNumber = updateEddyNumber + 1;
+        eddies(i).amp = cat(1, eddies(i).amp, newEddies(nextIndex).amp);
+        eddies(i).center = cat(1, eddies(i).center, newEddies(nextIndex).center);
+        eddies(i).cyc = cat(1, eddies(i).cyc, newEddies(nextIndex).cyc);
+        eddies(i).r = cat(1, eddies(i).r, newEddies(nextIndex).r);
+        eddies(i).date = cat(1, eddies(i).date, date);
+        eddies(i).Seq = cat(1, eddies(i).Seq, eddies(i).Seq + 1);
+        % updated index
+        updateEddies(updateEddyNumber) = nextIndex;
+    % Add new eddies
+    for i = length(oldEddies) + 1:length(oldEddies) + length(newEddies) - length(updateEddies)
+        eddies(i).amp = newEddies(updateEddies(i - length(oldEddies))).amp;
+        eddies(i).center = newEddies(updateEddies(i - length(oldEddies))).center;
+        eddies(i).cyc = newEddies(updateEddies(i - length(oldEddies))).cyc;
+        eddies(i).r = newEddies(updateEddies(i - length(oldEddies))).r;
+        eddies(i).date = date;
+        eddies(i).Seq = 1;
+        eddies(i).ID = i;
+    end
+
+end
