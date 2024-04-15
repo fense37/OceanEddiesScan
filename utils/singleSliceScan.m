@@ -23,8 +23,18 @@ function [eddies] = singleSliceScan(ssh, lat, lon)
     minAmp   = 1;    % unit centimeter
     maxAmp   = 150;  % unit centimeter
     minError = 1e-4; 
+    resolution = 0.25;  % data resolution
     warning('off', 'all');
 
+    % filtering the ssh field
+    ssha = ssh;
+    % space filter
+    lambda = 8;
+    for k = 1:size(ssha,3)
+        ssh0 = squeeze(ssha(:,:,k));
+        ssha(:,:,k) = filt2(ssh0,resolution,lambda,'hp');
+    end
+    ssh = roundn(ssha,-2);
     % calculate the average length of each grid for ref
     dl = dLatLon(lat(1), lat(end), lon(1), lon(end)) / sqrt(length(lat)^2 + length(lon)^2);
     % 2d grid of lat and lon
