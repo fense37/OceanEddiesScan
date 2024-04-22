@@ -24,7 +24,6 @@ function s = contourData(field, lat, lon)
     % level is from -100cm to 100cm, interval is 1cm
     level = [-100: 1: 100];
     % get contour info
-    figure('Visible','off')
     c = contour(mlat, mlon, field, level);
     tol = 1e-12;
     % amount of contour

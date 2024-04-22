@@ -46,7 +46,7 @@ function [eddies] = eddyTrack(oldEddies, newEddies, date)
     for i = 1:length(oldEddies)
         [minS, nextIndex] = min(s(i,:));
         [minJS, JIndex] = min(s(:, nextIndex));
-        if minJS == minS && minS < 10
+        if minJS == minS
             updateEddyNumber = updateEddyNumber + 1;
             updateEddies(updateEddyNumber) = nextIndex;
             eddies(i).amp = cat(1, eddies(i).amp, newEddies(nextIndex).amp);
