@@ -1,8 +1,15 @@
-# OceanEddiesScan
-
-# Your good friend to scan eddies in sea surface height field
+# OceanEddiesScan (Your good friend to scan eddies in sea surface height field)
 
 based on the Chelton SSH method(Chelton et al., 2011)
+# Second Edition
+
+2024.4.22
+
+## OES version 0.1.1
+
+- Add the Thermo Dynamic Scan, which is used to judge if the eddies is a warm or cold core.
+- fixed some bugs.
+- Note: while using the field which longtitude is uncontinuous, make it continuous in your certain field.
 
 # First Edition
 
