@@ -23,7 +23,7 @@ function [eddies] = singleSliceScan(ssh, lat, lon)
     minAmp   = 1;    % unit centimeter
     maxAmp   = 150;  % unit centimeter
     minError = 1e-4; 
-    
+    resolution = 0.25;  % data resolution
     warning('off', 'all');
 
     % filtering the ssh field
