@@ -143,12 +143,17 @@ function [eddies] = singleSliceScan(ssh, lat, lon)
                    eddyNumber = eddyNumber - 1;
             end
             j = j + 1;
-        end   
+        end
+        if size(slat, 1) ~= 1
+            slat = slat';
+            slon = slon';
+        end  
         eddyNumber = eddyNumber + 1;
         eddies(eddyNumber).amp    = amp;
         eddies(eddyNumber).center = sCenter;
         eddies(eddyNumber).cyc    = cyc;
         eddies(eddyNumber).r      = sr;
+        eddies(eddyNumber).contour = {[slat;slon]};
     end
     if eddyNumber == 0
         eddies = 0;

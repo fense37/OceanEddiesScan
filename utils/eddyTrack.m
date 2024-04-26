@@ -55,6 +55,10 @@ function [eddies] = eddyTrack(oldEddies, newEddies, date)
             eddies(i).r = cat(1, eddies(i).r, newEddies(nextIndex).r);
             eddies(i).date = cat(1, eddies(i).date, date);
             eddies(i).Seq = cat(1, eddies(i).Seq, eddies(i).Seq(end) + 1);
+            oldcontour = eddies(i).contour;
+            newcontour = newEddies(nextIndex).contour;
+            oldcontour{end+1} = newcontour{1};
+            eddies(i).contour = oldcontour;
         end
     end
     % generating new eddies
@@ -65,6 +69,8 @@ function [eddies] = eddyTrack(oldEddies, newEddies, date)
         eddies(i).center = newEddies(addEddy(i - length(oldEddies))).center;
         eddies(i).cyc = newEddies(addEddy(i - length(oldEddies))).cyc;
         eddies(i).r = newEddies(addEddy(i - length(oldEddies))).r;
+        newcontour = newEddies(addEddy(i - length(oldEddies))).contour;
+        eddies(i).contour = {newcontour{1}};
         eddies(i).date = date;
         eddies(i).Seq = 1;
         eddies(i).ID = i;
