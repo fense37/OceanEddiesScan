@@ -133,16 +133,24 @@ function [eddies] = singleSliceScan(ssh, lat, lon)
         end
         % seak if there is an inside eddy
         j = 1;
+        % if the eddy is inside other eddy
+        isSmaller = 0;
         while j <= eddyNumber
             if abs(eddies(j).amp - amp)<minError && ...
                abs(eddies(j).center(1) - sCenter(1))<minError &&...
                abs(eddies(j).center(2) - sCenter(2))<minError &&...
-               eddies(j).cyc == cyc &&...
-               eddies(j).r < sr
+               eddies(j).cyc == cyc
+               if eddies(j).r < sr
                    eddies(j) = [];
                    eddyNumber = eddyNumber - 1;
+               else 
+                   isSmaller = 1;
+               end
             end
             j = j + 1;
+        end
+        if isSmaller
+            continue;
         end
         if size(slat, 1) ~= 1
             slat = slat';
