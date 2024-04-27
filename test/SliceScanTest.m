@@ -12,13 +12,33 @@ end
 disp('Load complete!');
 %% load the function
 addpath('../utils/');
+%% cut the field
+latIndex = 360:480;
+lonIndex = 720:960;
+lat = lat(latIndex);
+lon = lon(lonIndex);
+lon(lon < 0) = lon(lon < 0) +360;
+data = data(latIndex, lonIndex);
 %% run the test function
 s = singleSliceScan(data, lat, lon);
 %% viewing result
 [mlon, mlat] = meshgrid(lon, lat);
-contourf(mlat, mlon, data);shading interp;colorbar;
+figure(1)
+contourf(mlat, mlon, data);
 hold on;
-for i = 1: 10
-    scatter(s(i).center(1), s(i).center(2), '.');
+figure(2);
+for i = 1:length(s)
+    con = s(i).contour;
+    edge = con{1};
+    if s(i).cyc == 1
+        c = 'b';
+    else 
+        c = 'r';
+    end
+    scatter(edge(1,:),edge(2,:), '.',c);
+    hold on;
+    center = s(i).center;
+    scatter(center(1),center(2),'.','k');
     hold on;
 end
+ylim([min(mlon(:)), max(lon(:))]);xlim([min(mlat(:)), max(lat(:))])

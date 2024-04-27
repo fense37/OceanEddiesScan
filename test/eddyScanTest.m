@@ -36,7 +36,7 @@ m_proj('mill','long',[min(mlon(:)),max(mlon(:))],'lat',[min(latp), max(latp)]);
 
 [CS, CH] = m_contourf(mlon, mlat, sshp(:,:,t), levels);
 hold on;
-for i = 1: 1000
+for i = 1: length(s)
     track = s(i).center;
     m_plot(track(:,2), track(:,1), 'color','k','linewidth',3);
     hold on;
