@@ -1,6 +1,16 @@
 # OceanEddiesScan (Your good friend to scan eddies in sea surface height field)
 
 based on the Chelton SSH method(Chelton et al., 2011)
+
+# Third Edition
+
+2024.4.27
+
+## OES version 0.1.2
+
+- fixed some bugs
+- Add the contour info of the eddy, the edge of the eddies now will produce.
+
 # Second Edition
 
 2024.4.22
