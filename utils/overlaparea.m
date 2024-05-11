@@ -34,7 +34,7 @@ function [overlat, overlon] = overlaparea(lat1, lon1, lat2, lon2)
     in21 = inpolygon(lat2, lon2, lat1, lon1);
 
     % the overlap points
-    overlat = cat(1, lat2(in21), lat1(~in12));
-    overlon = cat(1, lon2(in21), lon1(~in12));
+    overlat = cat(1, lat2(in21), lat1(in12));
+    overlon = cat(1, lon2(in21), lon1(in12));
 
 end
