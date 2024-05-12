@@ -26,6 +26,7 @@ function [eddies] = singleSliceScan(ssh, lat, lon)
     resolution = 0.25;  % data resolution
     warning('off', 'all');
 
+
     % filtering the ssh field
     ssha = ssh;
     % space filter
@@ -43,8 +44,9 @@ function [eddies] = singleSliceScan(ssh, lat, lon)
     mask = ~isnan(ssh);
     % calculate the coutour
     s = contourData(ssh, lat, lon);
+
+
     % search the right coutour
-    % define intial var by using parfor
     eddyNumber = 0;
     for i = 1: size(s, 2)
         % print very 10 times
@@ -107,7 +109,6 @@ function [eddies] = singleSliceScan(ssh, lat, lon)
         end
         % amplitude search
         % cover the NaN value first
-
         peak = imregionalmax(abs(infield));
         % if not only one peak
         if sum(peak(:)) ~= 1
@@ -143,6 +144,7 @@ function [eddies] = singleSliceScan(ssh, lat, lon)
                if eddies(j).r < sr
                    eddies(j) = [];
                    eddyNumber = eddyNumber - 1;
+                   j = j - 1;
                else 
                    isSmaller = 1;
                end
@@ -163,8 +165,10 @@ function [eddies] = singleSliceScan(ssh, lat, lon)
         eddies(eddyNumber).r      = sr;
         eddies(eddyNumber).contour = {[slat;slon]};
     end
+
     if eddyNumber == 0
         eddies = 0;
     end
+
     disp('Slice completed!');
 end

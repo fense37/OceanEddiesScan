@@ -22,7 +22,7 @@ function s = contourData(field, lat, lon)
         field = field * 100;
     end
     % level is from -100cm to 100cm, interval is 1cm
-    level = [-100: 1: 100];
+    level = [-200: 1: 200];
     % get contour info
     c = contour(mlat, mlon, field, level);
     tol = 1e-12;
