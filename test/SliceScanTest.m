@@ -24,9 +24,8 @@ s = singleSliceScan(data, lat, lon);
 %% viewing result
 [mlon, mlat] = meshgrid(lon, lat);
 figure(1)
-contourf(mlat, mlon, data);
+pcolor(mlat, mlon, data);shading interp;
 hold on;
-figure(2);
 for i = 1:length(s)
     con = s(i).contour;
     edge = con{1};
@@ -35,7 +34,7 @@ for i = 1:length(s)
     else 
         c = 'r';
     end
-    scatter(edge(1,:),edge(2,:), '.',c);
+    plot(edge(1,:),edge(2,:), 'k');
     hold on;
     center = s(i).center;
     scatter(center(1),center(2),'.','k');
