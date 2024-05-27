@@ -1,23 +1,12 @@
-function int = integerlatlondep(field, lat, lon, dep)
+function volume = volumelatlondep(lat, lon, dep)
 %INTERLATLONDEP is a function used for integer the lat lon dep of geo situation
 %INPUT:
-% field: the field you need to integer
 % lat: the lat of the points, 1D arrays
 % lon: the lon of the points, 1D arrays
 % dep: the depth of the points, 1D arrays
 %OUTPUT:
-% int: the integergal of the field
+% volume: the volume of the field
 
-    % make sure the size of field
-    if (length(size(field)) == 2)
-        if (size(field) ~= [length(lat) length(lon)])
-            error('wrong size of field!');
-        end
-    else
-        if (size(field) ~= [length(lat) length(lon) length(dep)])
-            error('wrong size of field!');
-        end
-    end
     % build the edge
     %points: 1 2 3 4 5
     %edges: 1 2 3 4 5 6 
@@ -58,7 +47,7 @@ function int = integerlatlondep(field, lat, lon, dep)
         end 
     end
     % calculate the volume of everyblock
-    volume = zeros(size(field));
+    volume = zeros(length(lat), length(lon), length(dep));
     for i = 1:length(lat)
         for j = 1:length(lon)
             for k = 1:length(dep)
@@ -69,5 +58,4 @@ function int = integerlatlondep(field, lat, lon, dep)
             end
         end
     end
-    int = nansum(nansum(nansum(field .* volume)));
 end

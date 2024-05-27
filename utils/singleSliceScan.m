@@ -23,21 +23,31 @@ function [eddies] = singleSliceScan(ssh, lat, lon)
     minAmp   = 1;    % unit centimeter
     maxAmp   = 150;  % unit centimeter
     minError = 1e-4; 
-    resolution = 0.25;  % data resolution
+    cflat = 5;  % cut-off frequencey of lat
+    cflon = 10; % cut-off frequency of lon
+    resolution = (lat(2)-lat(1))/1;  % data resolution
+    standard_deviation = 50; % the standard deviation of gauss filt
     warning('off', 'all');
 
+
+    % if the ssh field uint is m
+    if max(ssh(:)) < 10
+        % change unit into cm
+        ssh = ssh * 100;
+    end
 
     % filtering the ssh field
     ssha = ssh;
     % space filter
-    lambda = 8;
-    for k = 1:size(ssha,3)
-        ssh0 = squeeze(ssha(:,:,k));
-        ssha(:,:,k) = filt2(ssh0,resolution,lambda,'hp');
-    end
-    ssh = roundn(ssha,-2);
+    ssh0 = ssha;
+    ssh0(isnan(ssh0)) = 0;
+    % remove the smoothed field from a Gaussian filter
+    ssha = ssh0 - imgaussfilt(ssh0, standard_deviation, 'FilterSize', [2 * cflat/resolution + 1, 2 * cflon/resolution + 1]);
+    ssha(isnan(ssh)) = NaN;
+    ssh = ssha;
+
     % calculate the average length of each grid for ref
-    dl = dLatLon(lat(1), lat(end), lon(1), lon(end)) / sqrt(length(lat)^2 + length(lon)^2);
+    dl = 2 * dLatLon(lat(1), lat(end), lon(1), lon(end)) / sqrt(length(lat)^2 + length(lon)^2);
     % 2d grid of lat and lon
     [mlon, mlat] = meshgrid(lon, lat);
     % land mask
@@ -53,6 +63,10 @@ function [eddies] = singleSliceScan(ssh, lat, lon)
         if mod(i, 100) == 0
             fprintf('Contour searching in %d/%d, Eddy Number = %d\r', i, size(s,2), eddyNumber);
         end 
+        % if the contour is open
+        if s(i).isopen == 1
+            continue;
+        end
         % calculate the area of the coutour
         % the lat and lon of the coutour
         slat = s(i).x;
@@ -115,7 +129,7 @@ function [eddies] = singleSliceScan(ssh, lat, lon)
             continue;
         end
         % if the peak is beyond the max and min amplitude
-        amp = infield(peak);
+        amp = infield(peak) - s(i).level;
         if abs(amp) < minAmp || abs(amp) > maxAmp
             continue;
         end
@@ -137,8 +151,7 @@ function [eddies] = singleSliceScan(ssh, lat, lon)
         % if the eddy is inside other eddy
         isSmaller = 0;
         while j <= eddyNumber
-            if abs(eddies(j).amp - amp)<minError && ...
-               abs(eddies(j).center(1) - sCenter(1))<minError &&...
+            if abs(eddies(j).center(1) - sCenter(1))<minError &&...
                abs(eddies(j).center(2) - sCenter(2))<minError &&...
                eddies(j).cyc == cyc
                if eddies(j).r < sr
