@@ -2,6 +2,42 @@
 
 based on the Chelton SSH method(Chelton et al., 2011)
 
+## Forth Edition
+
+2024.5.27
+
+### OES version 0.2
+
+- The Ocean Eddy Scan now fixed most of the bugs
+
+let's present you some examples:
+
+Scan eddies in a SSH data:
+
+use singleSliceScan(ssh, lat, lon) to scan the ssh field:
+
+> load(datapath);
+>
+> eddies = singleSliceScan(ssh, lat, lon);
+
+which will return a 1xN struct, each struct contains the eddies characters like:
+
+- amplitude
+- radius
+- latitude and longtitude of the center
+- cyclone or anticyclone eddy
+- edge of the eddy
+
+you can use map toolbox like m_map to draw the result like:
+
+which the black lines present the eddies' edges, and the center point color represent the cyclone(blue) and anticyclone(red)
+
+![1715741753266](image/README/1715741753266.png)
+
+## Ocean Scan
+
+For one slice (one day) field data, you can use the function: singleSliceScan(ssh, lat, lon) to get the eddies in the ssh field.
+
 # Third Edition
 
 2024.4.27
@@ -74,7 +110,7 @@ return the distance on spherical surface, by calculating the angle between two v
 to update the eddy set by using the s value:
 
 $$
-s = \sqrt{(\frac{\Delta a}{a_0})^2+(\frac{\Delta d}{d_0})^2+(\frac{\Delta A}{A_0})^2} 
+s = \sqrt{(\frac{\Delta a}{a_0})^2+(\frac{\Delta d}{d_0})^2+(\frac{\Delta A}{A_0})^2}
 $$
 
 which a is area, d is distance, and A is ampltitude. To connact the smallest s value of oldEddy.
