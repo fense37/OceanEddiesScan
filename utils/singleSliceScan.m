@@ -42,7 +42,7 @@ function [eddies] = singleSliceScan(ssh, lat, lon)
     ssh0 = ssha;
     ssh0(isnan(ssh0)) = 0;
     % remove the smoothed field from a Gaussian filter
-    ssha = ssh0 - imgaussfilt(ssh0, standard_deviation, 'FilterSize', [2 * cflat/resolution + 1, 2 * cflon/resolution + 1]);
+    ssha = ssh0 - imgaussfilt(ssh0, standard_deviation, 'FilterSize', [2 * floor(cflat/resolution) + 1, 2 * floor(cflon/resolution) + 1]);
     ssha(isnan(ssh)) = NaN;
     ssh = ssha;
 
