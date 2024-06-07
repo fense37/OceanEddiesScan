@@ -20,6 +20,16 @@ function [eddies] = eddyTrack(oldEddies, newEddies, date)
     % eigenvalue of amplitude: 2cm
     A0 = 2;
     eddies = oldEddies;
+    % find date interval
+    olddate = 0;
+    % find max olddate => last date
+    for i = 1:length(oldEddies)
+        if oldEddies(i).date(end) > olddate
+            olddate = oldEddies(i).date(end);
+        end
+    end
+    dateinterval = date - olddate;
+
     % Update all eddies in oldEddies
     s = zeros(length(oldEddies), length(newEddies));
     for i = 1:length(oldEddies)
@@ -33,7 +43,7 @@ function [eddies] = eddyTrack(oldEddies, newEddies, date)
             % if the cyclone is opposite
             dc = oldEddies(i).cyc(end) - newEddies(j).cyc;
             % calculate S valye
-            if dc == 0 && oldEddies(i).date(end) + 3 == date
+            if dc == 0 && oldEddies(i).date(end) + dateinterval == date
                 s(i, j) = sqrt((dA/A0)^2+(da/a0)^2+(dd/d0)^2);
             else
                 s(i, j) = NaN;
